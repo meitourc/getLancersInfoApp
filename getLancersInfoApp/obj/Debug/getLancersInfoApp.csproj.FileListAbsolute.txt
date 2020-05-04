@@ -1,0 +1,13 @@
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\getLancersInfoApp.exe.config
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\getLancersInfoApp.exe
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\getLancersInfoApp.pdb
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.csprojAssemblyReference.cache
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.Form1.resources
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.Properties.Resources.resources
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.csproj.GenerateResource.cache
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.csproj.CoreCompileInputs.cache
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.exe
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.pdb
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\WebDriver.dll
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\WebDriver.xml
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.csproj.CopyComplete
