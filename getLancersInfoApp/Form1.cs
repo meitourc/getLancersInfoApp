@@ -121,13 +121,13 @@ namespace getLancersInfoApp
                 using (var driverService = ChromeDriverService.CreateDefaultService())
                 {
                     driverService.HideCommandPromptWindow = true;
-                    string url = @"https://www.lancers.jp/work/search?keyword=" + textBox_search.Text;
-            
+                    string url = @"https://www.lancers.jp/work/search?keyword=" + textBox_search.Text + "&sort=started";
+
                     // 起動オプションの設定
                     var options = new ChromeOptions();
                     // ヘッドレス(画面なし)
                     options.AddArgument("--headless");
-            
+
                     // ドライバ起動
                     using (var driver = new ChromeDriver(driverService, options))
                     {
@@ -137,49 +137,110 @@ namespace getLancersInfoApp
             
                         // HTMLを取得する
                         var source = driver.PageSource;
+
+                        //Trace.WriteLine(source);
+
                         string replaceHtmlData = getReplaceHtmlData(source);
 
-                        string pattern = "c-media__title-inner.>(.*?)</span>";
-                        MatchCollection match = extractingDataWithRegexMulti(replaceHtmlData, pattern);
-                        foreach (Match m in match)
-                        {
-                            string itemHtmlData = m.Groups[1].ToString();
+                        //Trace.WriteLine(replaceHtmlData);
 
-                            if (itemHtmlData.Contains("c-media__job-tags") && itemHtmlData != "")
+
+                        string pattern = "<divclass=.c-media__content.>(.*?)<divclass=.c-media__work-follow.>";
+                        MatchCollection match = extractingDataWithRegexMulti(replaceHtmlData, pattern);
+
+                        int count  = 1;
+                        foreach(Match m in match)
+                        {
+                            //itemNo（取得した順番）
+                            string strItemNo = count.ToString();
+
+                            //タイトル
+                            pattern = "<spanclass=.c-media__title-inner.>(.*?)</span>";
+                            String strItemTitle = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            if (strItemTitle.Contains("c-media__job-tags"))
                             {
                                 //pattern = @"</ul>(.*?)アプリ";
                                 pattern = @"</ul>(.*?)$";
-                                itemHtmlData = extractingDataWithRegexSingle(itemHtmlData, pattern);
-                                itemHtmlData = getReplaceHtmlData(itemHtmlData);
-
+                                strItemTitle = extractingDataWithRegexSingle(strItemTitle, pattern);
+                                strItemTitle = getReplaceHtmlData(strItemTitle);
                             }
-                            Debug.WriteLine(itemHtmlData);
-                            //itemUrlList.Add(itemUrl);
-                            //Debug.WriteLine(itemUrl);
+                            Debug.WriteLine(strItemTitle);
+
+                            //URL
+                            pattern = "";
+                            string strItemUrl = extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                            //カテゴリ
+                            pattern = "";
+                            string strItemCategory = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //形態
+                            pattern = "";
+                            string strItemWorkType = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //募集期間
+                            pattern = "";
+                            string strItemApplicationPeriod = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //取引期間
+                            pattern = "";
+                            string strItemTransactionPeriod = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //価格
+                            pattern = "";
+                            string strItemPrice = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //提案数
+                            pattern = "";
+                            string strItemProposalNum = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //提案者
+                            pattern = "";
+                            string strItemProposer = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //発注数
+                            pattern = "";
+                            string strItemOrderNum = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //評価
+                            pattern = "";
+                            string strItemEvaluation = extractingDataWithRegexSingle(m.ToString(), pattern);
+                            //説明
+                            pattern = "";
+                            string strItemDescription = extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                            count++;
+
                         }
 
+                        //foreach (Match m in match)
+                        //{
+                        //    string itemHtmlData = m.Groups[1].ToString();
+                        //
+                        //    if (itemHtmlData.Contains("c-media__job-tags") && itemHtmlData != "")
+                        //    {
+                        //        //pattern = @"</ul>(.*?)アプリ";
+                        //        pattern = @"</ul>(.*?)$";
+                        //        itemHtmlData = extractingDataWithRegexSingle(itemHtmlData, pattern);
+                        //        itemHtmlData = getReplaceHtmlData(itemHtmlData);
+                        //
+                        //    }
+                        //    Debug.WriteLine(itemHtmlData);
+                        //    //itemUrlList.Add(itemUrl);
+                        //    //Debug.WriteLine(itemUrl);
+                        //}
 
-                        var test = driver.FindElementsByClassName("c-media__title-inner");
-                        //var test = driver.FindElement(By.ClassName("c-media__title-inner"));
+
+                        //var test = driver.FindElementsByClassName("c-media__content__right");
+                        //var test = driver.FindElementsByClassName("c-media__title-inner");
+                        var test = driver.FindElementsByClassName("c-media__job-time__remaining");
 
                         
+                        //var test = driver.FindElement(By.ClassName("c-media-list__item c-media "));
+
+                        //var test = driver.FindElement(By.ClassName("c-media__title-inner"));
+
+
+
                         foreach (var data in test)
                         {
-                            //string strTitle =  replaceHtmlData(data.Text);
-                            
+                          string strTitle =  getReplaceHtmlData(data.Text );
                           Trace.WriteLine(data.Text);
 
                         }
                         
-                        
-
-                        Trace.WriteLine("------");
-                        Trace.WriteLine(source);
-            
-                        // タイトルを取得する
-                        var title = driver.Title;
-                        Trace.WriteLine("------");
-                        Trace.WriteLine(title);
                     }
                 }
             }
