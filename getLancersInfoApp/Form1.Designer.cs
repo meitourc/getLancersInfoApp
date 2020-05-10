@@ -32,6 +32,7 @@
             this.button_exec = new System.Windows.Forms.Button();
             this.label_status = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.label_output = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // textBox_search
@@ -69,11 +70,21 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "ステータス：";
             // 
+            // label_output
+            // 
+            this.label_output.AutoSize = true;
+            this.label_output.Location = new System.Drawing.Point(142, 414);
+            this.label_output.Name = "label_output";
+            this.label_output.Size = new System.Drawing.Size(94, 24);
+            this.label_output.TabIndex = 4;
+            this.label_output.Text = "出力先：";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1236, 645);
+            this.Controls.Add(this.label_output);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label_status);
             this.Controls.Add(this.button_exec);
@@ -91,6 +102,7 @@
         private System.Windows.Forms.Button button_exec;
         private System.Windows.Forms.Label label_status;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label_output;
     }
 }
 

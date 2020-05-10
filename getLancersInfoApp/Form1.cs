@@ -29,8 +29,9 @@ namespace getLancersInfoApp
         //シングルトン
         static System.OperatingSystem os = System.Environment.OSVersion;
         static System.Text.Encoding enc = System.Text.Encoding.GetEncoding("utf-8");
+        static List<LancersItem> lancersItemList = new List<LancersItem>();
 
-        
+
         public Form1()
         {
             InitializeComponent();
@@ -89,34 +90,10 @@ namespace getLancersInfoApp
         private void getLancersInfoMain()
         {
             conponentExecControl(PROC_START);
-
-            //try
-            //{
-            //    string url = @"https://www.lancers.jp/work/search?keyword=" + textBox_search.Text;
-            //    string htmlData = getHtml(url);
-            //   // var chrome = new ChromeDriver(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            //   // chrome.Url = url;
-            //   // Console.ReadKey();
-            //   // chrome.Quit();
-            //    Debug.WriteLine(htmlData);
-            //
-            //
-            //
-            //}
-            //catch(Exception ex)
-            //{
-            //    //メッセージボックスを表示する
-            //    MessageBox.Show("データが正常に取得できませんでした。",
-            //        "エラー",
-            //        MessageBoxButtons.OK,
-            //        MessageBoxIcon.Error);
-            //    conponentExecControl(PROC_ERROR);
-            //    return;
-            //
-            //}
-
+            File.Delete(@".\lancersItem.csv");
             try
             {
+                
                 // プロンプトを出さないようにする
                 using (var driverService = ChromeDriverService.CreateDefaultService())
                 {
@@ -126,7 +103,7 @@ namespace getLancersInfoApp
                     // 起動オプションの設定
                     var options = new ChromeOptions();
                     // ヘッドレス(画面なし)
-                    options.AddArgument("--headless");
+                    //options.AddArgument("--headless");
 
                     // ドライバ起動
                     using (var driver = new ChromeDriver(driverService, options))
@@ -134,113 +111,29 @@ namespace getLancersInfoApp
                         // URLへ移動
                         driver.Url = url;
                         driver.Navigate();
-            
+
+
+
+
                         // HTMLを取得する
-                        var source = driver.PageSource;
+                        string source = driver.PageSource;
+                        //driver.FindElement(By.ClassName("pager__item pager__item--next")).Click();
+                        //driver.FindElementByXPath("/html/body/div[2]/div[2]/main/section/section/nav/div/span/a"
 
-                        //Trace.WriteLine(source);
-
-                        string replaceHtmlData = getReplaceHtmlData(source);
-
-                        //Trace.WriteLine(replaceHtmlData);
-
-
-                        string pattern = "<divclass=.c-media__content.>(.*?)<divclass=.c-media__work-follow.>";
-                        MatchCollection match = extractingDataWithRegexMulti(replaceHtmlData, pattern);
-
-                        int count  = 1;
-                        foreach(Match m in match)
+                        for (int i = 0; i < 3; i++)
                         {
-                            //itemNo（取得した順番）
-                            string strItemNo = count.ToString();
-
-                            //タイトル
-                            pattern = "<spanclass=.c-media__title-inner.>(.*?)</span>";
-                            String strItemTitle = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            if (strItemTitle.Contains("c-media__job-tags"))
+                            if (i > 0)
                             {
-                                //pattern = @"</ul>(.*?)アプリ";
-                                pattern = @"</ul>(.*?)$";
-                                strItemTitle = extractingDataWithRegexSingle(strItemTitle, pattern);
-                                strItemTitle = getReplaceHtmlData(strItemTitle);
+                                IWebElement element = driver.FindElement(By.LinkText("次へ"));
+                                if (element.Displayed)
+                                {
+                                    element.Click();
+                                }
                             }
-                            Debug.WriteLine(strItemTitle);
-
-                            //URL
-                            pattern = "";
-                            string strItemUrl = extractingDataWithRegexSingle(m.ToString(), pattern);
-
-                            //カテゴリ
-                            pattern = "";
-                            string strItemCategory = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //形態
-                            pattern = "";
-                            string strItemWorkType = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //募集期間
-                            pattern = "";
-                            string strItemApplicationPeriod = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //取引期間
-                            pattern = "";
-                            string strItemTransactionPeriod = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //価格
-                            pattern = "";
-                            string strItemPrice = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //提案数
-                            pattern = "";
-                            string strItemProposalNum = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //提案者
-                            pattern = "";
-                            string strItemProposer = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //発注数
-                            pattern = "";
-                            string strItemOrderNum = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //評価
-                            pattern = "";
-                            string strItemEvaluation = extractingDataWithRegexSingle(m.ToString(), pattern);
-                            //説明
-                            pattern = "";
-                            string strItemDescription = extractingDataWithRegexSingle(m.ToString(), pattern);
-
-                            count++;
-
+                            source = driver.PageSource;
+                            scrapingLancersData(source);
+                            csvWrite_lancersItem();
                         }
-
-                        //foreach (Match m in match)
-                        //{
-                        //    string itemHtmlData = m.Groups[1].ToString();
-                        //
-                        //    if (itemHtmlData.Contains("c-media__job-tags") && itemHtmlData != "")
-                        //    {
-                        //        //pattern = @"</ul>(.*?)アプリ";
-                        //        pattern = @"</ul>(.*?)$";
-                        //        itemHtmlData = extractingDataWithRegexSingle(itemHtmlData, pattern);
-                        //        itemHtmlData = getReplaceHtmlData(itemHtmlData);
-                        //
-                        //    }
-                        //    Debug.WriteLine(itemHtmlData);
-                        //    //itemUrlList.Add(itemUrl);
-                        //    //Debug.WriteLine(itemUrl);
-                        //}
-
-
-                        //var test = driver.FindElementsByClassName("c-media__content__right");
-                        //var test = driver.FindElementsByClassName("c-media__title-inner");
-                        var test = driver.FindElementsByClassName("c-media__job-time__remaining");
-
-                        
-                        //var test = driver.FindElement(By.ClassName("c-media-list__item c-media "));
-
-                        //var test = driver.FindElement(By.ClassName("c-media__title-inner"));
-
-
-
-                        foreach (var data in test)
-                        {
-                          string strTitle =  getReplaceHtmlData(data.Text );
-                          Trace.WriteLine(data.Text);
-
-                        }
-                        
                     }
                 }
             }
@@ -251,6 +144,212 @@ namespace getLancersInfoApp
 
             }
             conponentExecControl(PROC_END);
+        }
+
+        private void scrapingLancersData(string source)
+        {
+            string replaceHtmlData = getReplaceHtmlData(source);
+            lancersItemList = new List<LancersItem>();
+
+            string pattern = "<divclass=.c-media__content.>(.*?)<divclass=.c-media__work-follow.>";
+            MatchCollection match = extractingDataWithRegexMulti(replaceHtmlData, pattern);
+            int count = 0;
+            try
+            {
+                foreach (Match m in match)
+                {
+                    LancersItem lancersItemData = new LancersItem();
+
+                    if (lancersItemList.Count == 0)
+                    {
+                        lancersItemData.itemNo = "No";
+                        lancersItemData.itemTitle = "タイトル";
+                        lancersItemData.itemUrl = "URL";
+                        lancersItemData.itemCategory = "カテゴリー";
+                        lancersItemData.itemWorkType = "案件種別";
+                        lancersItemData.itemTransactionPeriod = "取引条件";
+                        lancersItemData.itemProposalNum = "提案数";
+                        lancersItemData.itemProposer = "提案者";
+                        lancersItemData.itemOrderNum = "発注数";
+                        lancersItemData.itemEvaluation = "評価";
+                        lancersItemData.itemDescription = "説明";
+                    }
+                    else
+                    {
+                        //itemNo（取得した順番）
+                        string strItemNo = count.ToString();
+
+                        //タイトル
+                        pattern = "<spanclass=.c-media__title-inner.>(.*?)</span>";
+                        String strItemTitle = extractingDataWithRegexSingle(m.ToString(), pattern);
+                        if (strItemTitle.Contains("c-media__job-tags"))
+                        {
+                            //pattern = @"</ul>(.*?)アプリ";
+                            pattern = @"</ul>(.*?)$";
+                            strItemTitle = extractingDataWithRegexSingle(strItemTitle, pattern);
+                            strItemTitle = getReplaceHtmlData(strItemTitle);
+                        }
+
+                        //URL
+                        pattern = "<aclass=.c-media__title.href=.(.*?).>";
+                        string strItemUrl = "https://www.lancers.jp/work" + extractingDataWithRegexSingle(m.ToString(), pattern);
+                        //Debug.WriteLine(strItemUrl);
+
+                        //カテゴリ
+                        pattern = ".p-search-job__division-link.*?>(.*?)<";
+                        string strItemCategory = extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        pattern = "<liclass=.p-search-job__division.>(.*?)<";
+                        match = extractingDataWithRegexMulti(m.ToString(), pattern);
+                        strItemCategory += "/" + match[1].Groups[1];
+
+
+                        //形態
+                        pattern = "<spanclass=.c-badge__text.>(.*?)<";
+                        string strItemWorkType = extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        //Debug.WriteLine(strItemWorkType);
+                        ////募集期間
+                        //pattern = "";
+                        //string strItemApplicationPeriod = extractingDataWithRegexSingle(m.ToString(), pattern);
+                        //
+                        //
+                        ////取引期間
+                        //pattern = "";
+                        //string strItemTransactionPeriod = extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        //条件
+                        pattern = "class=.c-media__job-numberc-media__job-number--budgetFrom.>(.*?)<";
+                        string strItemTransactionConditions = extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        pattern = "class=.c-media__job-unitc-media__job-number--budgetFrom.>(.*?)<";
+                        strItemTransactionConditions += extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        pattern = "class=.c-media__job-unit.>(.*?)<";
+                        strItemTransactionConditions += extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        pattern = "class=.c-media__job-number.>(.*?)<";
+                        strItemTransactionConditions += extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        pattern = "class=.c-media__job-unit.>(.*?)<";
+                        match = extractingDataWithRegexMulti(m.ToString(), pattern);
+                        strItemTransactionConditions += match[1].Groups[1];
+
+                        //提案数
+                        pattern = "class=.c-media__job-number.>(.*?)<";
+                        match = extractingDataWithRegexMulti(m.ToString(), pattern);
+                        string strItemProposalNum = match[1].Groups[1].ToString();
+
+                        //提案者
+                        pattern = "class=.c-avatar__image-wrapper.>.*alt=.(.*?).title";
+                        string strItemProposer = extractingDataWithRegexSingle(m.ToString(), pattern);
+                        Debug.WriteLine(strItemProposer);
+
+                        //発注数
+                        pattern = "発注<strong>(.*?)</strong>";
+                        string strItemOrderNum = extractingDataWithRegexSingle(m.ToString(), pattern);
+                        if(strItemOrderNum == "")
+                        {
+                            strItemOrderNum = "-";
+                        }
+
+                        //評価
+                        pattern = "評価<strong>(.*?)</strong>";
+                        string strItemEvaluation = extractingDataWithRegexSingle(m.ToString(), pattern);
+                        if (strItemEvaluation == "")
+                        {
+                            strItemEvaluation = "-";
+                        }
+
+                        //説明
+                        pattern = "class=.c-media__description.>(.*?)</div>";
+                        string strItemDescription = extractingDataWithRegexSingle(m.ToString(), pattern);
+
+                        if (strItemDescription.Contains("c-media__job-tag-lists"))
+                        {
+                            //pattern = @"</ul>(.*?)アプリ";
+                            pattern = @"<ulclass=.c-media__job-tag-lists.>(.*?)class=.c-media__description.";
+                            strItemDescription = extractingDataWithRegexSingle(strItemTitle, pattern);
+                            strItemDescription = getReplaceHtmlData(strItemTitle);
+                        }
+
+                        //Listに格納
+                        lancersItemData.itemNo = strItemNo;
+                        lancersItemData.itemTitle = strItemTitle;
+                        lancersItemData.itemUrl = strItemUrl;
+                        lancersItemData.itemCategory = strItemCategory;
+                        lancersItemData.itemWorkType = strItemWorkType;
+                        lancersItemData.itemTransactionPeriod = strItemTransactionConditions;
+                        lancersItemData.itemProposalNum = strItemProposalNum;
+                        lancersItemData.itemProposer = strItemProposer;
+                        lancersItemData.itemOrderNum = strItemOrderNum;
+                        lancersItemData.itemEvaluation = strItemEvaluation;
+                        lancersItemData.itemDescription = strItemDescription;
+                    }
+
+                    lancersItemList.Add(lancersItemData);
+
+                    count++;
+                }
+            }
+            catch (Exception ex)
+            {
+                //メッセージボックスを表示する
+                MessageBox.Show("データが正常に取得できませんでした。",
+                "エラー",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+                conponentExecControl(PROC_ERROR);
+                return;
+
+            }
+        }
+        /// <summary>
+        /// CSV書き込み_サジェスト
+        /// </summary>
+        private void csvWrite_lancersItem()
+        {
+            string output_file_path = @".\lancersItem.csv";
+            string strData = ""; //1行分のデータ
+
+            try
+            {
+                System.IO.StreamWriter sw = new System.IO.StreamWriter(output_file_path,
+                                                                       true,
+                                                                       System.Text.Encoding.Default);
+                //ヘッダ書き込み
+                foreach (var data in lancersItemList)
+                {
+                    strData =
+                    data.itemNo + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemTitle               + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemUrl                 + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemCategory            + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemWorkType            + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemTransactionPeriod   + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemProposalNum         + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemProposer            + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemOrderNum            + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemEvaluation          + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemDescription         + DOUBLE_QUOTATION;
+
+                    sw.WriteLine(strData);
+                }
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                //メッセージボックスを表示する
+                MessageBox.Show("CSVファイルの書き込みに失敗しました。",
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                conponentExecControl(PROC_ERROR);
+                return;
+            }
+            string fullOutputPath = System.IO.Path.GetFullPath(output_file_path);
+            label_output.Text = "出力先：" + fullOutputPath;
+
         }
     }
 }
