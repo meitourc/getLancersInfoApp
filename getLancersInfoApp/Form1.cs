@@ -53,6 +53,7 @@ namespace getLancersInfoApp
         /// <param name="e"></param>
         private void Form1_Load(object sender, EventArgs e)
         {
+            timer1.Start();
             if (this.Visible)
             {
                 フォームを表示ToolStripMenuItem.Enabled = false;
@@ -194,12 +195,13 @@ namespace getLancersInfoApp
         /// <summary>
         /// 新規に取得した情報をSlackに通知
         /// </summary>
-        private void slackNotification()
+        private void slackNotification(string lancersNotificationData)
         {
             var wc = new WebClient();
             var data = DynamicJson.Serialize(new
             {
-                text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
+                //text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
+                text = lancersNotificationData,
                 icon_emoji = ":ghost:", //アイコンを動的に変更する
                 username = "投稿テスト用Bot"  //名前を動的に変更する
             });
@@ -279,8 +281,15 @@ namespace getLancersInfoApp
                             }
                             source = driver.PageSource;
                             scrapingLancersData(source);
-                            csvWrite_lancersItem();
+                            //csvWrite_lancersItem();
                         }
+                        deleteDB();
+                        createDB();
+                        connectDB();
+                        insertDataToDB();
+                        string lancersNotificationData = getDataFromDB();
+
+                        slackNotification(lancersNotificationData);
                     }
                 }
             }
@@ -309,7 +318,8 @@ namespace getLancersInfoApp
 
                     //itemNo（取得した順番）
                     DateTime dt = DateTime.Now;
-                    string strItemGetDate = dt.ToString();
+                    //string strItemGetDate = dt.ToString();
+                    DateTime dateItemGetDate = dt;
 
                     //タイトル
                     pattern = "<spanclass=.c-media__title-inner.>(.*?)</span>";
@@ -406,7 +416,7 @@ namespace getLancersInfoApp
                     }
 
                     //Listに格納
-                    lancersItemData.itemGetDate = strItemGetDate;
+                    lancersItemData.itemGetDate = dateItemGetDate;
                     lancersItemData.itemTitle = strItemTitle;
                     lancersItemData.itemUrl = strItemUrl;
                     lancersItemData.itemCategory = strItemCategory;
@@ -417,6 +427,9 @@ namespace getLancersInfoApp
                     lancersItemData.itemOrderNum = strItemOrderNum;
                     lancersItemData.itemEvaluation = strItemEvaluation;
                     lancersItemData.itemDescription = strItemDescription;
+
+
+
 
                     lancersItemList.Add(lancersItemData);
 
@@ -502,14 +515,14 @@ namespace getLancersInfoApp
 
                     command.CommandText = "create table Sample(" +
                         "Id INTEGER  PRIMARY KEY AUTOINCREMENT," +
-                        "itemGetDate DATE" +
+                        "itemGetDate DateTime," +
                         " itemTitle TEXT," +
                         " itemUrl TEXT," +
                         " itemCategory TEXT," +
                         "itemWorkType TEXT," +
-                        "itemApplicationPeriod  TEXT," +
+                        //"itemApplicationPeriod  TEXT," +
                         "itemTransactionPeriod TEXT," +
-                        "itemPrice  TEXT," +
+                        //"itemPrice  TEXT," +
                         "itemProposalNum  TEXT," +
                         "itemProposer  TEXT," +
                         "itemOrderNum  TEXT," +
@@ -614,21 +627,23 @@ namespace getLancersInfoApp
                         "itemUrl," +
                         "itemCategory," +
                         "itemWorkType," +
-                        "itemApplicationPeriod," +
+                        //"itemApplicationPeriod," +
                         "itemTransactionPeriod," +
-                        "itemPrice," +
-                        "itemPrice," +
+                        //"itemPrice," +
                         "itemProposalNum," +
                         "itemProposer," +
                         "itemOrderNum," +
                         "itemEvaluation," +
                         "itemDescription) " +
-                        "VALUES (@itemTitle, @itemUrl," +
+                        "VALUES ("+
+                        "@itemGetDate," +
+                        "@itemTitle," +
+                        "@itemUrl," +
                         "@itemCategory," +
                         "@itemWorkType," +
-                        "@itemApplicationPeriod," +
+                        //"@itemApplicationPeriod," +
                         "@itemTransactionPeriod," +
-                        "@itemPrice,@itemPrice," +
+                        //"@itemPrice," +
                         "@itemProposalNum," +
                         "@itemProposer," +
                         "@itemOrderNum," +
@@ -638,14 +653,14 @@ namespace getLancersInfoApp
 
                     // パラメータセット
                     
-                    cmd.Parameters.Add("itemGetDate", System.Data.DbType.Date);
+                    cmd.Parameters.Add("itemGetDate", System.Data.DbType.DateTime);
                     cmd.Parameters.Add("itemTitle", System.Data.DbType.String);
                     cmd.Parameters.Add("itemUrl", System.Data.DbType.String);
                     cmd.Parameters.Add("itemCategory", System.Data.DbType.String);
                     cmd.Parameters.Add("itemWorkType", System.Data.DbType.String);
-                    cmd.Parameters.Add("itemApplicationPeriod", System.Data.DbType.String);
+                    //cmd.Parameters.Add("itemApplicationPeriod", System.Data.DbType.String);
                     cmd.Parameters.Add("itemTransactionPeriod", System.Data.DbType.String);
-                    cmd.Parameters.Add("itemPrice", System.Data.DbType.String);
+                    //cmd.Parameters.Add("itemPrice", System.Data.DbType.String);
                     cmd.Parameters.Add("itemProposalNum", System.Data.DbType.String);
                     cmd.Parameters.Add("itemProposer", System.Data.DbType.String);
                     cmd.Parameters.Add("itemOrderNum", System.Data.DbType.String);
@@ -661,17 +676,35 @@ namespace getLancersInfoApp
                         cmd.Parameters["itemUrl"].Value = data.itemUrl;
                         cmd.Parameters["itemCategory"].Value = data.itemCategory;
                         cmd.Parameters["itemWorkType"].Value = data.itemWorkType;
-                        cmd.Parameters["itemApplicationPeriod"].Value = data.itemTransactionPeriod;
-                        cmd.Parameters["itemTransactionPeriod"].Value = data.itemProposalNum;
-                        cmd.Parameters["itemPrice"].Value = data.itemProposer;
-                        cmd.Parameters["itemProposalNum"].Value = data.itemOrderNum;
-                        cmd.Parameters["itemProposer"].Value = data.itemEvaluation;
-                        cmd.Parameters["itemTitle"].Value = data.itemDescription;
+                        //cmd.Parameters["itemApplicationPeriod"].Value = data.itemTransactionPeriod;
+                        cmd.Parameters["itemTransactionPeriod"].Value = data.itemTransactionPeriod;
+                        cmd.Parameters["itemProposalNum"].Value = data.itemProposalNum;
+                        cmd.Parameters["itemProposer"].Value = data.itemProposer;
+                        cmd.Parameters["itemOrderNum"].Value = data.itemOrderNum;
+                        cmd.Parameters["itemEvaluation"].Value = data.itemEvaluation;
+                        cmd.Parameters["itemDescription"].Value = data.itemDescription;
+
+
+
+                        cmd.ExecuteNonQuery();
+
+                        //lancersItemData.itemGetDate = "取得日時";
+                        //lancersItemData.itemTitle = "タイトル";
+                        //lancersItemData.itemUrl = "URL";
+                        //lancersItemData.itemCategory = "カテゴリー";
+                        //lancersItemData.itemWorkType = "案件種別";
+                        //lancersItemData.itemTransactionPeriod = "取引条件";
+                        //lancersItemData.itemProposalNum = "提案数";
+                        //lancersItemData.itemProposer = "提案者";
+                        //lancersItemData.itemOrderNum = "発注数";
+                        //lancersItemData.itemEvaluation = "評価";
+                        //lancersItemData.itemDescription = "説明";
+                        //lancersItemList.Add(lancersItemData);
                     }
 
                     //cmd.Parameters["itemTitle"].Value = "test_title";
                     //cmd.Parameters["itemUrl"].Value = "test_url";
-                    //cmd.ExecuteNonQuery();
+                    //itemGetDate
                     //
                     //cmd.Parameters["itemTitle"].Value = "test_title2";
                     //cmd.Parameters["itemUrl"].Value = "test_url2";
@@ -684,7 +717,7 @@ namespace getLancersInfoApp
         }
 
         // データの取得
-        private void getDataFromDB()
+        private string getDataFromDB()
         {
             using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + db_file))
             {
@@ -701,11 +734,15 @@ namespace getLancersInfoApp
                     }
 
                     MessageBox.Show(message);
+                    return message;
                 }
                 conn.Close();
             }
         }
 
-
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            Console.WriteLine(DateTime.Now);
+        }
     }
 }

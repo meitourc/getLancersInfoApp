@@ -35,14 +35,13 @@
             this.label_status = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label_output = new System.Windows.Forms.Label();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.button_createDb = new System.Windows.Forms.Button();
             this.button_end = new System.Windows.Forms.Button();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.フォームを表示ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -57,7 +56,7 @@
             // 
             this.button_exec.Location = new System.Drawing.Point(552, 99);
             this.button_exec.Name = "button_exec";
-            this.button_exec.Size = new System.Drawing.Size(305, 195);
+            this.button_exec.Size = new System.Drawing.Size(406, 195);
             this.button_exec.TabIndex = 1;
             this.button_exec.Text = "実行";
             this.button_exec.UseVisualStyleBackColor = true;
@@ -90,20 +89,11 @@
             this.label_output.TabIndex = 4;
             this.label_output.Text = "出力先：";
             // 
-            // dataGridView1
-            // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(195, 590);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowTemplate.Height = 33;
-            this.dataGridView1.Size = new System.Drawing.Size(541, 302);
-            this.dataGridView1.TabIndex = 5;
-            // 
             // button_createDb
             // 
-            this.button_createDb.Location = new System.Drawing.Point(928, 99);
+            this.button_createDb.Location = new System.Drawing.Point(1104, 99);
             this.button_createDb.Name = "button_createDb";
-            this.button_createDb.Size = new System.Drawing.Size(469, 80);
+            this.button_createDb.Size = new System.Drawing.Size(293, 195);
             this.button_createDb.TabIndex = 6;
             this.button_createDb.Text = "データベース作成";
             this.button_createDb.UseVisualStyleBackColor = true;
@@ -111,7 +101,7 @@
             // 
             // button_end
             // 
-            this.button_end.Location = new System.Drawing.Point(1084, 869);
+            this.button_end.Location = new System.Drawing.Point(1049, 529);
             this.button_end.Name = "button_end";
             this.button_end.Size = new System.Drawing.Size(338, 84);
             this.button_end.TabIndex = 7;
@@ -126,7 +116,7 @@
             this.フォームを表示ToolStripMenuItem,
             this.終了ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(301, 120);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(223, 76);
             // 
             // フォームを表示ToolStripMenuItem
             // 
@@ -149,14 +139,18 @@
             this.notifyIcon1.Text = "ランサーズ案件取得";
             this.notifyIcon1.Visible = true;
             // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1493, 1067);
+            this.ClientSize = new System.Drawing.Size(1493, 865);
             this.Controls.Add(this.button_end);
             this.Controls.Add(this.button_createDb);
-            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.label_output);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label_status);
@@ -166,7 +160,6 @@
             this.Text = "ランサーズ案件取得";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -180,13 +173,13 @@
         private System.Windows.Forms.Label label_status;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label_output;
-        private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Button button_createDb;
         private System.Windows.Forms.Button button_end;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem フォームを表示ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 終了ToolStripMenuItem;
         private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
