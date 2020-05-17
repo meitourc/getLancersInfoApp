@@ -8,7 +8,7 @@ namespace getLancersInfoApp
 {
     class LancersItem
     {
-        public string itemNo { get; set; } //itemNo（取得した順番）
+        public string itemGetDate { get; set; } //itemNo（取得した順番）
         public string itemTitle { get; set; } //タイトル
         public string itemUrl { get; set; } //URL
         public string itemCategory { get; set; } //カテゴリ

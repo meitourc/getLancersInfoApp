@@ -11,3 +11,12 @@ C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLan
 C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\WebDriver.dll
 C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\WebDriver.xml
 C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\obj\Debug\getLancersInfoApp.csproj.CopyComplete
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\EntityFramework.dll
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\System.Data.SQLite.dll
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\System.Data.SQLite.EF6.dll
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\System.Data.SQLite.Linq.dll
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\EntityFramework.xml
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\System.Data.SQLite.xml
+C:\Users\meito\source\repos\getLancersInfoApp\getLancersInfoApp\bin\Debug\System.Data.SQLite.dll.config

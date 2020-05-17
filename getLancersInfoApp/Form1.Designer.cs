@@ -33,6 +33,9 @@
             this.label_status = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label_output = new System.Windows.Forms.Label();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.button_createDb = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // textBox_search
@@ -79,11 +82,32 @@
             this.label_output.TabIndex = 4;
             this.label_output.Text = "出力先：";
             // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(195, 590);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowTemplate.Height = 33;
+            this.dataGridView1.Size = new System.Drawing.Size(1114, 302);
+            this.dataGridView1.TabIndex = 5;
+            // 
+            // button_createDb
+            // 
+            this.button_createDb.Location = new System.Drawing.Point(757, 402);
+            this.button_createDb.Name = "button_createDb";
+            this.button_createDb.Size = new System.Drawing.Size(469, 80);
+            this.button_createDb.TabIndex = 6;
+            this.button_createDb.Text = "データベース作成";
+            this.button_createDb.UseVisualStyleBackColor = true;
+            this.button_createDb.Click += new System.EventHandler(this.button_createDb_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1236, 645);
+            this.ClientSize = new System.Drawing.Size(1493, 1067);
+            this.Controls.Add(this.button_createDb);
+            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.label_output);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label_status);
@@ -91,6 +115,7 @@
             this.Controls.Add(this.textBox_search);
             this.Name = "Form1";
             this.Text = "ランサーズ情報取得";
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -103,6 +128,8 @@
         private System.Windows.Forms.Label label_status;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label_output;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Button button_createDb;
     }
 }
 
