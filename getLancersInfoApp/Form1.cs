@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Codeplex.Data;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -26,6 +28,7 @@ namespace getLancersInfoApp
 
         static int PROC_STATUS = PROC_STANDBY;
         string db_file = "Test.db";
+        static string WEBHOOK_URL = "https://hooks.slack.com/services/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";
         //static List<ItemInfo> itemInfo = new List<ItemInfo>(); //CSV読み込みデータ格納リスト
 
         //シングルトン
@@ -41,6 +44,118 @@ namespace getLancersInfoApp
             InitializeComponent();
             textBox_search.Text = "スクレイピング";
             conponentExecControl(PROC_STANDBY);
+        }
+
+        /// <summary>
+        /// フォームロード
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            if (this.Visible)
+            {
+                フォームを表示ToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                フォームを表示ToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void button_createDb_Click(object sender, EventArgs e)
+        {
+            deleteDB();
+            createDB();
+            connectDB();
+            insertDataToDB();
+            getDataFromDB();
+        }
+
+        /// <summary>
+        /// 終了ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_end_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+
+
+        /// <summary>
+        /// フォームを表示
+        /// </summary>
+        private void showMainForm()
+        {
+            this.Show();
+            this.ShowInTaskbar = true;
+            フォームを表示ToolStripMenuItem.Enabled = false;
+        }
+
+        /// <summary>
+        /// フォームを表示ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_showForm_Click(object sender, EventArgs e)
+        {
+            showMainForm();
+        }
+
+        /// <summary>
+        /// 実行ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_exec_Click(object sender, EventArgs e)
+        {
+            getLancersInfoMain();
+
+        }
+
+        /// <summary>
+        /// フォームの☓ボタンを押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            putInTray();
+        }
+
+        /// <summary>
+        /// トレイに入れる
+        /// </summary>
+        private void putInTray()
+        {
+            this.Hide();
+            this.ShowInTaskbar = false;
+            フォームを表示ToolStripMenuItem.Enabled = true;
+        }
+
+        /// <summary>
+        /// 表示_タスクトレイ右クリックメニュー
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void フォームを表示ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showMainForm();
+
+        }
+
+        /// <summary>
+        /// 終了_タスクトレイ右クリック
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void 終了ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            Application.Exit();
         }
 
         /// <summary>
@@ -76,18 +191,29 @@ namespace getLancersInfoApp
             }
         }
 
-
         /// <summary>
-        /// 実行ボタン
+        /// 新規に取得した情報をSlackに通知
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button_exec_Click(object sender, EventArgs e)
+        private void slackNotification()
         {
-            getLancersInfoMain();
+            var wc = new WebClient();
+            var data = DynamicJson.Serialize(new
+            {
+                text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
+                icon_emoji = ":ghost:", //アイコンを動的に変更する
+                username = "投稿テスト用Bot"  //名前を動的に変更する
+            });
+
+            wc.Headers.Add(HttpRequestHeader.ContentType, "application/json;charset=UTF-8");
+            wc.Encoding = Encoding.UTF8;
+
+            wc.UploadString(WEBHOOK_URL, data);
 
         }
-        
+
+
+
+
         /// <summary>
         /// ランサーズデータ取得メイン処理
         /// </summary>
@@ -114,7 +240,7 @@ namespace getLancersInfoApp
 
             try
             {
-                
+
                 // プロンプトを出さないようにする
                 using (var driverService = ChromeDriverService.CreateDefaultService())
                 {
@@ -174,7 +300,7 @@ namespace getLancersInfoApp
 
             string pattern = "<divclass=.c-media__content.>(.*?)<divclass=.c-media__work-follow.>";
             MatchCollection match = extractingDataWithRegexMulti(replaceHtmlData, pattern);
-            
+
             try
             {
                 foreach (Match m in match)
@@ -329,16 +455,16 @@ namespace getLancersInfoApp
                 {
                     strData =
                     data.itemGetDate + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemTitle               + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemUrl                 + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemCategory            + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemWorkType            + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemTransactionPeriod   + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemProposalNum         + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemProposer            + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemOrderNum            + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemEvaluation          + DOUBLE_QUOTATION + DELIMITER +
-                    DOUBLE_QUOTATION + data.itemDescription         + DOUBLE_QUOTATION;
+                    DOUBLE_QUOTATION + data.itemTitle + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemUrl + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemCategory + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemWorkType + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemTransactionPeriod + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemProposalNum + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemProposer + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemOrderNum + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemEvaluation + DOUBLE_QUOTATION + DELIMITER +
+                    DOUBLE_QUOTATION + data.itemDescription + DOUBLE_QUOTATION;
 
                     sw.WriteLine(strData);
                 }
@@ -359,7 +485,8 @@ namespace getLancersInfoApp
 
         }
 
-        
+
+
 
 
         //参考：http://rubbish.mods.jp/blog/2016/08/22/visual-studio%E3%81%A7c%E3%81%8B%E3%82%89sqlite%E3%82%92%E4%BD%BF%E3%81%86%E6%96%B9%E6%B3%95/
@@ -372,7 +499,43 @@ namespace getLancersInfoApp
                 conn.Open();
                 using (SQLiteCommand command = conn.CreateCommand())
                 {
-                    command.CommandText = "create table Sample(Id INTEGER  PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER)";
+
+                    command.CommandText = "create table Sample(" +
+                        "Id INTEGER  PRIMARY KEY AUTOINCREMENT," +
+                        "itemGetDate DATE" +
+                        " itemTitle TEXT," +
+                        " itemUrl TEXT," +
+                        " itemCategory TEXT," +
+                        "itemWorkType TEXT," +
+                        "itemApplicationPeriod  TEXT," +
+                        "itemTransactionPeriod TEXT," +
+                        "itemPrice  TEXT," +
+                        "itemProposalNum  TEXT," +
+                        "itemProposer  TEXT," +
+                        "itemOrderNum  TEXT," +
+                        "itemEvaluation  TEXT," +
+                        "itemDescription  TEXT)";
+                    //command.CommandText = "create table Sample(Id INTEGER  PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER)";
+
+
+                    command.ExecuteNonQuery();
+                }
+
+                conn.Close();
+            }
+        }
+
+        // データベース削除
+        private void deleteDB()
+        {
+            // コネクションを開いてテーブル作成して閉じる  
+            using (var conn = new SQLiteConnection("Data Source=" + db_file))
+            {
+                conn.Open();
+                using (SQLiteCommand command = conn.CreateCommand())
+                {
+
+                    command.CommandText = "drop table Sample";
                     command.ExecuteNonQuery();
                 }
 
@@ -402,6 +565,39 @@ namespace getLancersInfoApp
 
         // データの追加
 
+        //private void insertDataToDB()
+        //{
+        //    using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + db_file))
+        //    {
+        //        conn.Open();
+        //        using (SQLiteTransaction trans = conn.BeginTransaction())
+        //        {
+        //            SQLiteCommand cmd = conn.CreateCommand();
+
+        //            // インサート
+        //            cmd.CommandText = "INSERT INTO Sample (Name, Age) VALUES (@Name, @Age)";
+
+
+        //            // パラメータセット
+        //            cmd.Parameters.Add("Name", System.Data.DbType.String);
+        //            cmd.Parameters.Add("Age", System.Data.DbType.Int64);
+
+        //            // データ追加
+        //            cmd.Parameters["Name"].Value = "佐藤";
+        //            cmd.Parameters["Age"].Value = 32;
+        //            cmd.ExecuteNonQuery();
+
+        //            cmd.Parameters["Name"].Value = "斉藤";
+        //            cmd.Parameters["Age"].Value = 24;
+        //            cmd.ExecuteNonQuery();
+
+        //            // コミット
+        //            trans.Commit();
+        //        }
+        //    }
+        //}
+
+
         private void insertDataToDB()
         {
             using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + db_file))
@@ -412,20 +608,74 @@ namespace getLancersInfoApp
                     SQLiteCommand cmd = conn.CreateCommand();
 
                     // インサート
-                    cmd.CommandText = "INSERT INTO Sample (Name, Age) VALUES (@Name, @Age)";
+                    cmd.CommandText = "INSERT INTO Sample (" +
+                        "itemGetDate," +
+                        "itemTitle," +
+                        "itemUrl," +
+                        "itemCategory," +
+                        "itemWorkType," +
+                        "itemApplicationPeriod," +
+                        "itemTransactionPeriod," +
+                        "itemPrice," +
+                        "itemPrice," +
+                        "itemProposalNum," +
+                        "itemProposer," +
+                        "itemOrderNum," +
+                        "itemEvaluation," +
+                        "itemDescription) " +
+                        "VALUES (@itemTitle, @itemUrl," +
+                        "@itemCategory," +
+                        "@itemWorkType," +
+                        "@itemApplicationPeriod," +
+                        "@itemTransactionPeriod," +
+                        "@itemPrice,@itemPrice," +
+                        "@itemProposalNum," +
+                        "@itemProposer," +
+                        "@itemOrderNum," +
+                        "@itemEvaluation," +
+                        "@itemDescription)";
+
 
                     // パラメータセット
-                    cmd.Parameters.Add("Name", System.Data.DbType.String);
-                    cmd.Parameters.Add("Age", System.Data.DbType.Int64);
+                    
+                    cmd.Parameters.Add("itemGetDate", System.Data.DbType.Date);
+                    cmd.Parameters.Add("itemTitle", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemUrl", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemCategory", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemWorkType", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemApplicationPeriod", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemTransactionPeriod", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemPrice", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemProposalNum", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemProposer", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemOrderNum", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemEvaluation", System.Data.DbType.String);
+                    cmd.Parameters.Add("itemDescription", System.Data.DbType.String);
 
-                    // データ追加
-                    cmd.Parameters["Name"].Value = "佐藤";
-                    cmd.Parameters["Age"].Value = 32;
-                    cmd.ExecuteNonQuery();
 
-                    cmd.Parameters["Name"].Value = "斉藤";
-                    cmd.Parameters["Age"].Value = 24;
-                    cmd.ExecuteNonQuery();
+                    //データ追加
+                    foreach (var data in lancersItemList)
+                    {
+                        cmd.Parameters["itemGetDate"].Value = data.itemGetDate;
+                        cmd.Parameters["itemTitle"].Value = data.itemTitle;
+                        cmd.Parameters["itemUrl"].Value = data.itemUrl;
+                        cmd.Parameters["itemCategory"].Value = data.itemCategory;
+                        cmd.Parameters["itemWorkType"].Value = data.itemWorkType;
+                        cmd.Parameters["itemApplicationPeriod"].Value = data.itemTransactionPeriod;
+                        cmd.Parameters["itemTransactionPeriod"].Value = data.itemProposalNum;
+                        cmd.Parameters["itemPrice"].Value = data.itemProposer;
+                        cmd.Parameters["itemProposalNum"].Value = data.itemOrderNum;
+                        cmd.Parameters["itemProposer"].Value = data.itemEvaluation;
+                        cmd.Parameters["itemTitle"].Value = data.itemDescription;
+                    }
+
+                    //cmd.Parameters["itemTitle"].Value = "test_title";
+                    //cmd.Parameters["itemUrl"].Value = "test_url";
+                    //cmd.ExecuteNonQuery();
+                    //
+                    //cmd.Parameters["itemTitle"].Value = "test_title2";
+                    //cmd.Parameters["itemUrl"].Value = "test_url2";
+                    //cmd.ExecuteNonQuery();
 
                     // コミット
                     trans.Commit();
@@ -447,7 +697,7 @@ namespace getLancersInfoApp
 
                     while (reader.Read())
                     {
-                        message += reader["Id"].ToString() + "," + reader["Name"].ToString() + "," + reader["Age"].ToString() + "\n";
+                        message += reader["Id"].ToString() + "," + reader["itemTitle"].ToString() + "," + reader["itemUrl"].ToString() + "\n";
                     }
 
                     MessageBox.Show(message);
@@ -456,13 +706,6 @@ namespace getLancersInfoApp
             }
         }
 
-        private void button_createDb_Click(object sender, EventArgs e)
-        {
-            createDB();
-            connectDB();
-            insertDataToDB();
-            getDataFromDB();
-        }
-        
+
     }
 }
