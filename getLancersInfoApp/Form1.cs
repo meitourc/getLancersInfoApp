@@ -66,7 +66,7 @@ namespace getLancersInfoApp
 
         private void button_createDb_Click(object sender, EventArgs e)
         {
-            deleteDB();
+            //deleteDB();
             createDB();
             connectDB();
             insertDataToDB();
@@ -650,9 +650,7 @@ namespace getLancersInfoApp
                         "@itemEvaluation," +
                         "@itemDescription)";
 
-
                     // パラメータセット
-                    
                     cmd.Parameters.Add("itemGetDate", System.Data.DbType.DateTime);
                     cmd.Parameters.Add("itemTitle", System.Data.DbType.String);
                     cmd.Parameters.Add("itemUrl", System.Data.DbType.String);
@@ -684,14 +682,19 @@ namespace getLancersInfoApp
                         //    Console.WriteLine(dump);
                         //}
 
-                        cmd.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3005208'";
+                        SQLiteCommand cmd2 = conn.CreateCommand();
+
+
+                        //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3005208'";
+                        cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = @itemUrl";
+                        cmd2.Parameters.Add(new SQLiteParameter("@itemUrl", data.itemUrl));
                         //using (var reader = cmd.ExecuteReader())
                         //{
                         //    int test = reader.GetInt32(0);
                         //
                         //}
 
-                        long exists = (long)cmd.ExecuteScalar();
+                        long exists = (long)cmd2.ExecuteScalar();
 
                         if (exists == 0)
                         {
@@ -709,32 +712,16 @@ namespace getLancersInfoApp
                             cmd.Parameters["itemEvaluation"].Value = data.itemEvaluation;
                             cmd.Parameters["itemDescription"].Value = data.itemDescription;
 
+                            //cmd.Parameters.Add(new SQLiteParameter("@itemGetDate", 1));
+
+
+
+
 
 
                             cmd.ExecuteNonQuery();
                         }
-
-                        //lancersItemData.itemGetDate = "取得日時";
-                        //lancersItemData.itemTitle = "タイトル";
-                        //lancersItemData.itemUrl = "URL";
-                        //lancersItemData.itemCategory = "カテゴリー";
-                        //lancersItemData.itemWorkType = "案件種別";
-                        //lancersItemData.itemTransactionPeriod = "取引条件";
-                        //lancersItemData.itemProposalNum = "提案数";
-                        //lancersItemData.itemProposer = "提案者";
-                        //lancersItemData.itemOrderNum = "発注数";
-                        //lancersItemData.itemEvaluation = "評価";
-                        //lancersItemData.itemDescription = "説明";
-                        //lancersItemList.Add(lancersItemData);
                     }
-
-                    //cmd.Parameters["itemTitle"].Value = "test_title";
-                    //cmd.Parameters["itemUrl"].Value = "test_url";
-                    //itemGetDate
-                    //
-                    //cmd.Parameters["itemTitle"].Value = "test_title2";
-                    //cmd.Parameters["itemUrl"].Value = "test_url2";
-                    //cmd.ExecuteNonQuery();
 
                     // コミット
                     trans.Commit();
