@@ -28,7 +28,7 @@ namespace getLancersInfoApp
 
         static int PROC_STATUS = PROC_STANDBY;
         string db_file = "Test.db";
-        static string WEBHOOK_URL = "https://hooks.slack.com/services/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";
+        static string WEBHOOK_URL = "https://hooks.slack.com/services/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";
         //static List<ItemInfo> itemInfo = new List<ItemInfo>(); //CSV読み込みデータ格納リスト
 
         //シングルトン
@@ -566,7 +566,7 @@ namespace getLancersInfoApp
                 try
                 {
                     conn.Open();
-                    MessageBox.Show("Connection Success", "Connection Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    //MessageBox.Show("Connection Success", "Connection Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception exception)
                 {
@@ -671,22 +671,48 @@ namespace getLancersInfoApp
                     //データ追加
                     foreach (var data in lancersItemList)
                     {
-                        cmd.Parameters["itemGetDate"].Value = data.itemGetDate;
-                        cmd.Parameters["itemTitle"].Value = data.itemTitle;
-                        cmd.Parameters["itemUrl"].Value = data.itemUrl;
-                        cmd.Parameters["itemCategory"].Value = data.itemCategory;
-                        cmd.Parameters["itemWorkType"].Value = data.itemWorkType;
-                        //cmd.Parameters["itemApplicationPeriod"].Value = data.itemTransactionPeriod;
-                        cmd.Parameters["itemTransactionPeriod"].Value = data.itemTransactionPeriod;
-                        cmd.Parameters["itemProposalNum"].Value = data.itemProposalNum;
-                        cmd.Parameters["itemProposer"].Value = data.itemProposer;
-                        cmd.Parameters["itemOrderNum"].Value = data.itemOrderNum;
-                        cmd.Parameters["itemEvaluation"].Value = data.itemEvaluation;
-                        cmd.Parameters["itemDescription"].Value = data.itemDescription;
+                        //重複チェック
+                        //data.itemUrl
+                        //参考：https://qiita.com/koshian2/items/63938474001c510d0b15
+                        //参考2:https://gist.github.com/noqisofon/721182
+
+                        //MaxAPが300以上のでんこをMaxHPで降順ソート
+                        //cmd.CommandText = "SELECT * itemUrl FROM Sample WHERE data.itemGetDate !=   ";
+                        //using (var reader = cmd.ExecuteReader())
+                        //{
+                        //    var dump = reader.DumpQuery();
+                        //    Console.WriteLine(dump);
+                        //}
+
+                        cmd.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3005208'";
+                        //using (var reader = cmd.ExecuteReader())
+                        //{
+                        //    int test = reader.GetInt32(0);
+                        //
+                        //}
+
+                        long exists = (long)cmd.ExecuteScalar();
+
+                        if (exists == 0)
+                        {
+
+                            cmd.Parameters["itemGetDate"].Value = data.itemGetDate;
+                            cmd.Parameters["itemTitle"].Value = data.itemTitle;
+                            cmd.Parameters["itemUrl"].Value = data.itemUrl;
+                            cmd.Parameters["itemCategory"].Value = data.itemCategory;
+                            cmd.Parameters["itemWorkType"].Value = data.itemWorkType;
+                            //cmd.Parameters["itemApplicationPeriod"].Value = data.itemTransactionPeriod;
+                            cmd.Parameters["itemTransactionPeriod"].Value = data.itemTransactionPeriod;
+                            cmd.Parameters["itemProposalNum"].Value = data.itemProposalNum;
+                            cmd.Parameters["itemProposer"].Value = data.itemProposer;
+                            cmd.Parameters["itemOrderNum"].Value = data.itemOrderNum;
+                            cmd.Parameters["itemEvaluation"].Value = data.itemEvaluation;
+                            cmd.Parameters["itemDescription"].Value = data.itemDescription;
 
 
 
-                        cmd.ExecuteNonQuery();
+                            cmd.ExecuteNonQuery();
+                        }
 
                         //lancersItemData.itemGetDate = "取得日時";
                         //lancersItemData.itemTitle = "タイトル";
@@ -742,7 +768,7 @@ namespace getLancersInfoApp
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Console.WriteLine(DateTime.Now);
+            //Console.WriteLine(DateTime.Now);
         }
     }
 }

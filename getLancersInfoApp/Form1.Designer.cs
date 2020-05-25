@@ -121,14 +121,14 @@
             // フォームを表示ToolStripMenuItem
             // 
             this.フォームを表示ToolStripMenuItem.Name = "フォームを表示ToolStripMenuItem";
-            this.フォームを表示ToolStripMenuItem.Size = new System.Drawing.Size(300, 36);
+            this.フォームを表示ToolStripMenuItem.Size = new System.Drawing.Size(222, 36);
             this.フォームを表示ToolStripMenuItem.Text = "フォームを表示";
             this.フォームを表示ToolStripMenuItem.Click += new System.EventHandler(this.フォームを表示ToolStripMenuItem_Click);
             // 
             // 終了ToolStripMenuItem
             // 
             this.終了ToolStripMenuItem.Name = "終了ToolStripMenuItem";
-            this.終了ToolStripMenuItem.Size = new System.Drawing.Size(300, 36);
+            this.終了ToolStripMenuItem.Size = new System.Drawing.Size(222, 36);
             this.終了ToolStripMenuItem.Text = "終了";
             this.終了ToolStripMenuItem.Click += new System.EventHandler(this.終了ToolStripMenuItem_Click);
             // 
@@ -157,7 +157,7 @@
             this.Controls.Add(this.button_exec);
             this.Controls.Add(this.textBox_search);
             this.Name = "Form1";
-            this.Text = "ランサーズ案件取得";
+            this.Text = " ";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.contextMenuStrip1.ResumeLayout(false);
