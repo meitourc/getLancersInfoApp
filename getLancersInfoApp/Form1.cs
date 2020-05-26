@@ -195,13 +195,20 @@ namespace getLancersInfoApp
         /// <summary>
         /// 新規に取得した情報をSlackに通知
         /// </summary>
-        private void slackNotification(string lancersNotificationData)
+        //private void slackNotification(string lancersNotificationData)
+        private void slackNotification(List<string> lancersNotificationData)
         {
+
+            string textData = "";
+            foreach (var data2 in lancersNotificationData) {
+                textData += data2;
+            }
             var wc = new WebClient();
             var data = DynamicJson.Serialize(new
             {
                 //text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
-                text = lancersNotificationData,
+                //text = lancersNotificationData,
+                text = textData,
                 icon_emoji = ":ghost:", //アイコンを動的に変更する
                 username = "投稿テスト用Bot"  //名前を動的に変更する
             });
@@ -286,10 +293,9 @@ namespace getLancersInfoApp
                         deleteDB();
                         createDB();
                         connectDB();
-                        insertDataToDB();
-                        string lancersNotificationData = getDataFromDB();
-
-                        slackNotification(lancersNotificationData);
+                        List<string> newJobList = insertDataToDB();
+                        //string lancersNotificationData = getDataFromDB();
+                        slackNotification(newJobList);
                     }
                 }
             }
@@ -611,8 +617,10 @@ namespace getLancersInfoApp
         //}
 
 
-        private void insertDataToDB()
+        private List<string> insertDataToDB()
         {
+            List<string> newJobList = new List<string>();
+
             using (SQLiteConnection conn = new SQLiteConnection("Data Source=" + db_file))
             {
                 conn.Open();
@@ -686,15 +694,24 @@ namespace getLancersInfoApp
 
 
                         //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3005208'";
+                        
                         cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = @itemUrl";
                         cmd2.Parameters.Add(new SQLiteParameter("@itemUrl", data.itemUrl));
-                        //using (var reader = cmd.ExecuteReader())
+
+                    //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3009867'";
+
+                    
+                          //using (var reader = cmd.ExecuteReader())
+
                         //{
                         //    int test = reader.GetInt32(0);
                         //
                         //}
 
+                        //@selectで確認→count
+
                         long exists = (long)cmd2.ExecuteScalar();
+
 
                         if (exists == 0)
                         {
@@ -712,19 +729,21 @@ namespace getLancersInfoApp
                             cmd.Parameters["itemEvaluation"].Value = data.itemEvaluation;
                             cmd.Parameters["itemDescription"].Value = data.itemDescription;
 
+                            string str = data.itemGetDate.ToString() + "," + data.itemTitle + "," + data.itemUrl;
+                            newJobList.Add(str);
+
                             //cmd.Parameters.Add(new SQLiteParameter("@itemGetDate", 1));
-
-
-
-
-
-
                             cmd.ExecuteNonQuery();
+                        }
+                        else
+                        {
+                            Console.WriteLine("else");
                         }
                     }
 
                     // コミット
                     trans.Commit();
+                    return newJobList;
                 }
             }
         }
@@ -746,7 +765,7 @@ namespace getLancersInfoApp
                         message += reader["Id"].ToString() + "," + reader["itemTitle"].ToString() + "," + reader["itemUrl"].ToString() + "\n";
                     }
 
-                    MessageBox.Show(message);
+                    //MessageBox.Show(message);
                     return message;
                 }
                 conn.Close();
