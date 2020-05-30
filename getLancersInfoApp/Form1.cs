@@ -290,12 +290,16 @@ namespace getLancersInfoApp
                             scrapingLancersData(source);
                             //csvWrite_lancersItem();
                         }
-                        deleteDB();
+                        //deleteDB();
                         createDB();
                         connectDB();
                         List<string> newJobList = insertDataToDB();
                         //string lancersNotificationData = getDataFromDB();
-                        slackNotification(newJobList);
+
+                        if (newJobList.Count > 0)
+                        {
+                            slackNotification(newJobList);
+                        }
                     }
                 }
             }
@@ -516,28 +520,36 @@ namespace getLancersInfoApp
             using (var conn = new SQLiteConnection("Data Source=" + db_file))
             {
                 conn.Open();
+
+
                 using (SQLiteCommand command = conn.CreateCommand())
                 {
 
-                    command.CommandText = "create table Sample(" +
-                        "Id INTEGER  PRIMARY KEY AUTOINCREMENT," +
-                        "itemGetDate DateTime," +
-                        " itemTitle TEXT," +
-                        " itemUrl TEXT," +
-                        " itemCategory TEXT," +
-                        "itemWorkType TEXT," +
-                        //"itemApplicationPeriod  TEXT," +
-                        "itemTransactionPeriod TEXT," +
-                        //"itemPrice  TEXT," +
-                        "itemProposalNum  TEXT," +
-                        "itemProposer  TEXT," +
-                        "itemOrderNum  TEXT," +
-                        "itemEvaluation  TEXT," +
-                        "itemDescription  TEXT)";
-                    //command.CommandText = "create table Sample(Id INTEGER  PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER)";
+                    command.CommandText = "select count(*) from sqlite_master where type = 'table' and name = 'Sample'";
+                    long exists = (long)command.ExecuteScalar();
+                    if (exists == 0)
+                    {
+
+                        command.CommandText = "create table Sample(" +
+                            "Id INTEGER  PRIMARY KEY AUTOINCREMENT," +
+                            "itemGetDate DateTime," +
+                            " itemTitle TEXT," +
+                            " itemUrl TEXT," +
+                            " itemCategory TEXT," +
+                            "itemWorkType TEXT," +
+                            //"itemApplicationPeriod  TEXT," +
+                            "itemTransactionPeriod TEXT," +
+                            //"itemPrice  TEXT," +
+                            "itemProposalNum  TEXT," +
+                            "itemProposer  TEXT," +
+                            "itemOrderNum  TEXT," +
+                            "itemEvaluation  TEXT," +
+                            "itemDescription  TEXT)";
+                        //command.CommandText = "create table Sample(Id INTEGER  PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER)";
 
 
-                    command.ExecuteNonQuery();
+                        command.ExecuteNonQuery();
+                    }
                 }
 
                 conn.Close();
@@ -690,18 +702,17 @@ namespace getLancersInfoApp
                         //    Console.WriteLine(dump);
                         //}
 
-                        SQLiteCommand cmd2 = conn.CreateCommand();
 
 
                         //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3005208'";
-                        
-                        cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = @itemUrl";
-                        cmd2.Parameters.Add(new SQLiteParameter("@itemUrl", data.itemUrl));
 
-                    //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3009867'";
 
-                    
-                          //using (var reader = cmd.ExecuteReader())
+
+
+                        //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3009867'";
+
+
+                        //using (var reader = cmd.ExecuteReader())
 
                         //{
                         //    int test = reader.GetInt32(0);
@@ -710,8 +721,12 @@ namespace getLancersInfoApp
 
                         //@selectで確認→count
 
-                        long exists = (long)cmd2.ExecuteScalar();
 
+                        SQLiteCommand cmd2 = conn.CreateCommand();
+                        //cmd2.CommandText = "SELECT COUNT(*) FROM Sample";
+                        cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = @itemUrl";
+                        cmd2.Parameters.Add(new SQLiteParameter("@itemUrl", data.itemUrl));
+                        long exists = (long)cmd2.ExecuteScalar();
 
                         if (exists == 0)
                         {
@@ -729,7 +744,7 @@ namespace getLancersInfoApp
                             cmd.Parameters["itemEvaluation"].Value = data.itemEvaluation;
                             cmd.Parameters["itemDescription"].Value = data.itemDescription;
 
-                            string str = data.itemGetDate.ToString() + "," + data.itemTitle + "," + data.itemUrl;
+                            string str = data.itemGetDate.ToString() + "," + data.itemTitle + "," + data.itemUrl + LINE_FEED_CODE;
                             newJobList.Add(str);
 
                             //cmd.Parameters.Add(new SQLiteParameter("@itemGetDate", 1));
