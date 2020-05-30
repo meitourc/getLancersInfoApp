@@ -42,6 +42,8 @@ namespace getLancersInfoApp
         public Form1()
         {
             InitializeComponent();
+            timer1.Interval = 1000;
+            timer1.Interval = decimal.ToInt32(numericUpDown1.Value) * 1000;
             textBox_search.Text = "スクレイピング";
             conponentExecControl(PROC_STANDBY);
         }
@@ -54,6 +56,7 @@ namespace getLancersInfoApp
         private void Form1_Load(object sender, EventArgs e)
         {
             timer1.Start();
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             if (this.Visible)
             {
                 フォームを表示ToolStripMenuItem.Enabled = false;
@@ -220,6 +223,29 @@ namespace getLancersInfoApp
 
         }
 
+        /// <summary>
+        /// 新規に取得した情報をSlackに通知（新規案件がなかった場合）
+        /// </summary>
+        //private void slackNotification(string lancersNotificationData)
+        private void slackNotification_zero()
+        {
+            var wc = new WebClient();
+            var data = DynamicJson.Serialize(new
+            {
+                //text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
+                //text = lancersNotificationData,
+                text = "新規案件はありません。",
+                icon_emoji = ":ghost:", //アイコンを動的に変更する
+                username = "投稿テスト用Bot"  //名前を動的に変更する
+            });
+
+            wc.Headers.Add(HttpRequestHeader.ContentType, "application/json;charset=UTF-8");
+            wc.Encoding = Encoding.UTF8;
+
+            wc.UploadString(WEBHOOK_URL, data);
+
+        }
+
 
 
 
@@ -299,6 +325,10 @@ namespace getLancersInfoApp
                         if (newJobList.Count > 0)
                         {
                             slackNotification(newJobList);
+                        }
+                        else
+                        {
+                            slackNotification_zero();
                         }
                     }
                 }
@@ -503,8 +533,8 @@ namespace getLancersInfoApp
                 conponentExecControl(PROC_ERROR);
                 return;
             }
-            string fullOutputPath = System.IO.Path.GetFullPath(output_file_path);
-            label_output.Text = "出力先：" + fullOutputPath;
+            //string fullOutputPath = System.IO.Path.GetFullPath(output_file_path);
+            //label_output.Text = "出力先：" + fullOutputPath;
 
         }
 
@@ -702,24 +732,9 @@ namespace getLancersInfoApp
                         //    Console.WriteLine(dump);
                         //}
 
-
-
                         //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3005208'";
-
-
-
-
                         //cmd2.CommandText = "SELECT COUNT(*) FROM Sample WHERE itemUrl = 'https://www.lancers.jp/work/work/detail/3009867'";
-
-
                         //using (var reader = cmd.ExecuteReader())
-
-                        //{
-                        //    int test = reader.GetInt32(0);
-                        //
-                        //}
-
-                        //@selectで確認→count
 
 
                         SQLiteCommand cmd2 = conn.CreateCommand();
@@ -730,7 +745,6 @@ namespace getLancersInfoApp
 
                         if (exists == 0)
                         {
-
                             cmd.Parameters["itemGetDate"].Value = data.itemGetDate;
                             cmd.Parameters["itemTitle"].Value = data.itemTitle;
                             cmd.Parameters["itemUrl"].Value = data.itemUrl;
