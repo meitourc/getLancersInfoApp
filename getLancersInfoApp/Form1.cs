@@ -38,13 +38,15 @@ namespace getLancersInfoApp
 
         //static int count = 0;
 
+        static int EXEC_INTERVAL_TIME = 1;
+        static string SEARCH_WORD = "" ;
+
+
 
         public Form1()
         {
             InitializeComponent();
-            timer1.Interval = 1000;
-            timer1.Interval = decimal.ToInt32(numericUpDown1.Value) * 1000;
-            textBox_search.Text = "スクレイピング";
+            
             conponentExecControl(PROC_STANDBY);
         }
 
@@ -57,6 +59,8 @@ namespace getLancersInfoApp
         {
             timer1.Start();
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            textBox_search.Text = "スクレイピング";
+            timer1.Interval = 60000;
             if (this.Visible)
             {
                 フォームを表示ToolStripMenuItem.Enabled = false;
@@ -285,7 +289,7 @@ namespace getLancersInfoApp
                     // 起動オプションの設定
                     var options = new ChromeOptions();
                     // ヘッドレス(画面なし)
-                    //options.AddArgument("--headless");
+                    options.AddArgument("--headless");
 
                     // ドライバ起動
                     using (var driver = new ChromeDriver(driverService, options))
@@ -803,7 +807,18 @@ namespace getLancersInfoApp
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //Console.WriteLine(DateTime.Now);
+            Console.WriteLine(DateTime.Now);
+            getLancersInfoMain();
+        }
+
+        /// <summary>
+        /// 登録ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_Click(object sender, EventArgs e)
+        {
+            timer1.Interval = decimal.ToInt32(numericUpDown1.Value) * 1000 * 60;
         }
     }
 }
